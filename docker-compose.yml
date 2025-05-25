@@ -2,139 +2,83 @@ version: '3.8'
 
 services:
   namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-    container_name: namenode
-    restart: always
+    image: apache/hadoop:3.4.1
+    hostname: namenode
+    command: ["hdfs", "namenode"]
     ports:
       - "9870:9870"
       - "8020:8020"
-    volumes:
-      - hadoop_namenode:/hadoop/dfs/name
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
     environment:
-      - CLUSTER_NAME=test
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
-    env_file:
-      - ./hadoop.env
-    networks:
-      - hadoop
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - hadoop_namenode:/opt/hadoop/dfs/name
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   datanode:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode
-    restart: always
-    volumes:
-      - hadoop_datanode:/hadoop/dfs/data
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
+    image: apache/hadoop:3.4.1
+    hostname: datanode
+    command: ["hdfs", "datanode"]
     environment:
-      SERVICE_PRECONDITION: "namenode:9870"
-      CORE_CONF_fs_defaultFS: hdfs://namenode:8020
-    env_file:
-      - ./hadoop.env
-    networks:
-      - hadoop
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - hadoop_datanode:/opt/hadoop/dfs/data
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
     depends_on:
       - namenode
 
   resourcemanager:
-    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
-    container_name: resourcemanager
-    restart: always
+    image: apache/hadoop:3.4.1
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
     ports:
       - "8088:8088"
     environment:
-      SERVICE_PRECONDITION: "namenode:9870 datanode:9864"
-    env_file:
-      - ./hadoop.env
+      - CLUSTER_NAME=hadoop-cluster
     volumes:
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
-    networks:
-      - hadoop
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
     depends_on:
       - namenode
       - datanode
 
   nodemanager:
-    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
-    container_name: nodemanager
-    restart: always
+    image: apache/hadoop:3.4.1
+    hostname: nodemanager
+    command: ["yarn", "nodemanager"]
     environment:
-      SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
-    env_file:
-      - ./hadoop.env
+      - CLUSTER_NAME=hadoop-cluster
     volumes:
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
-    networks:
-      - hadoop
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
     depends_on:
-      - namenode
-      - datanode
       - resourcemanager
 
   historyserver:
-    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
-    container_name: historyserver
-    restart: always
+    image: apache/hadoop:3.4.1
+    hostname: historyserver
+    command: ["mapred", "historyserver"]
     ports:
-      - "8188:8188"
+      - "19888:19888"
     environment:
-      SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
+      - CLUSTER_NAME=hadoop-cluster
     volumes:
-      - hadoop_historyserver:/hadoop/yarn/timeline
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
-    env_file:
-      - ./hadoop.env
-    networks:
-      - hadoop
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
     depends_on:
       - namenode
-      - datanode
-      - resourcemanager
-
-  # Client container for compiling and running Java jobs
-  hadoop-client:
-    image: bde2020/hadoop-base:2.0.0-hadoop3.2.1-java8
-    container_name: hadoop-client
-    command: ["tail", "-f", "/dev/null"]
-    environment:
-      SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
-    env_file:
-      - ./hadoop.env
-    volumes:
-      - ./data:/opt/hadoop/data
-      - ./java-src:/opt/hadoop/java-src
-      - ./jars:/opt/hadoop/jars
-      - ./results:/opt/hadoop/results
-    networks:
-      - hadoop
-    depends_on:
-      - namenode
-      - datanode
-      - resourcemanager
-      - nodemanager
-    stdin_open: true
-    tty: true
 
 volumes:
   hadoop_namenode:
   hadoop_datanode:
-  hadoop_historyserver:
-
-networks:
-  hadoop:
-    driver: bridge
