@@ -12,4 +12,12 @@
     <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
     <value>false</value>
   </property>
+  <property>
+  <name>dfs.namenode.name.dir</name>
+  <value>file:///opt/hadoop/dfs/name</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///opt/hadoop/dfs/data</value>
+  </property>
 </configuration>
