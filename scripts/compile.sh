@@ -2,11 +2,18 @@
 
 echo "=== Compiling Java MapReduce Jobs ==="
 
-export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
 cd /opt/hadoop/java-src
 
+HADOOP_CP=$(hadoop classpath)
+if [ $? -ne 0 ] || [ -z "$HADOOP_CP" ]; then
+    echo "Failed to get Hadoop classpath. Ensure Hadoop is running and configured, and 'hadoop' command is in PATH."
+    exit 1
+fi
+
+echo "Current Hadoop Classpath: $HADOOP_CP"
+
 echo "Compiling Top IP Analysis..."
-hadoop com.sun.tools.javac.Main TopIP*.java
+javac -cp "$HADOOP_CP" TopIP*.java
 if [ $? -eq 0 ]; then
     jar cf /opt/hadoop/jars/topip.jar TopIP*.class
     echo "Top IP Analysis compiled successfully"
@@ -16,7 +23,7 @@ else
 fi
 
 echo "Compiling Error Analysis..."
-hadoop com.sun.tools.javac.Main ErrorAnalysis*.java
+javac -cp "$HADOOP_CP" ErrorAnalysis*.java
 if [ $? -eq 0 ]; then
     jar cf /opt/hadoop/jars/erroranalysis.jar ErrorAnalysis*.class
     echo "Error Analysis compiled successfully"

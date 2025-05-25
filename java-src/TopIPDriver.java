@@ -23,7 +23,7 @@ public class TopIPDriver {
         conf.set("mapreduce.map.output.compress.codec", "org.apache.hadoop.io.compress.SnappyCodec");
         
         Job job = Job.getInstance(conf, "top ip analysis");
-        job.setJarByFile(TopIPDriver.class);
+        job.setJarByClass(TopIPDriver.class);
         
         // Set mapper and reducer classes
         job.setMapperClass(TopIPMapper.class);

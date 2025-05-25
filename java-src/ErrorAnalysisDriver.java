@@ -20,7 +20,7 @@ public class ErrorAnalysisDriver {
         Configuration conf = new Configuration();
         
         Job job = Job.getInstance(conf, "error analysis");
-        job.setJarByFile(ErrorAnalysisDriver.class);
+        job.setJarByClass(ErrorAnalysisDriver.class);
         
         job.setMapperClass(ErrorAnalysisMapper.class);
         job.setCombinerClass(ErrorAnalysisReducer.class);
