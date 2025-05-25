@@ -2,50 +2,52 @@ version: '3.8'
 
 services:
   namenode:
-    image: apache/hadoop:3.4.1
-    hostname: namenode
-    command: ["hdfs", "namenode"]
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    restart: always
     ports:
-      - "9870:9870"    # NameNode Web UI
-      - "8020:8020"    # NameNode RPC
-    environment:
-      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
-    env_file:
-      - ./hadoop.env
+      - "9870:9870"
+      - "8020:8020"
     volumes:
-      - namenode_data:/tmp/hadoop-root/dfs/name
-      - ./data:/opt/hadoop/data          # Mount for your datasets
-      - ./java-src:/opt/hadoop/java-src  # Mount for Java source files
-      - ./jars:/opt/hadoop/jars          # Mount for compiled JARs
-      - ./results:/opt/hadoop/results    # Mount for results
-    networks:
-      - hadoop
-
-  datanode:
-    image: apache/hadoop:3.4.1
-    hostname: datanode
-    command: ["hdfs", "datanode"]
-    environment:
-      SERVICE_PRECONDITION: "namenode:9870"
-    env_file:
-      - ./hadoop.env
-    volumes:
-      - datanode_data:/tmp/hadoop-root/dfs/data
+      - hadoop_namenode:/hadoop/dfs/name
       - ./data:/opt/hadoop/data
       - ./java-src:/opt/hadoop/java-src
       - ./jars:/opt/hadoop/jars
       - ./results:/opt/hadoop/results
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+    env_file:
+      - ./hadoop.env
+    networks:
+      - hadoop
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    restart: always
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+      - ./data:/opt/hadoop/data
+      - ./java-src:/opt/hadoop/java-src
+      - ./jars:/opt/hadoop/jars
+      - ./results:/opt/hadoop/results
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+      CORE_CONF_fs_defaultFS: hdfs://namenode:8020
+    env_file:
+      - ./hadoop.env
     networks:
       - hadoop
     depends_on:
       - namenode
 
   resourcemanager:
-    image: apache/hadoop:3.4.1
-    hostname: resourcemanager
-    command: ["yarn", "resourcemanager"]
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: resourcemanager
+    restart: always
     ports:
-      - "8088:8088"    # ResourceManager Web UI
+      - "8088:8088"
     environment:
       SERVICE_PRECONDITION: "namenode:9870 datanode:9864"
     env_file:
@@ -62,9 +64,9 @@ services:
       - datanode
 
   nodemanager:
-    image: apache/hadoop:3.4.1
-    hostname: nodemanager
-    command: ["yarn", "nodemanager"]
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager
+    restart: always
     environment:
       SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
@@ -82,20 +84,21 @@ services:
       - resourcemanager
 
   historyserver:
-    image: apache/hadoop:3.4.1
-    hostname: historyserver
-    command: ["yarn", "timelineserver"]
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    container_name: historyserver
+    restart: always
     ports:
-      - "8188:8188"    # History Server Web UI
+      - "8188:8188"
     environment:
       SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
-    env_file:
-      - ./hadoop.env
     volumes:
+      - hadoop_historyserver:/hadoop/yarn/timeline
       - ./data:/opt/hadoop/data
       - ./java-src:/opt/hadoop/java-src
       - ./jars:/opt/hadoop/jars
       - ./results:/opt/hadoop/results
+    env_file:
+      - ./hadoop.env
     networks:
       - hadoop
     depends_on:
@@ -105,9 +108,9 @@ services:
 
   # Client container for compiling and running Java jobs
   hadoop-client:
-    image: apache/hadoop:3.4.1
-    hostname: hadoop-client
-    command: ["tail", "-f", "/dev/null"]  # Keep container running
+    image: bde2020/hadoop-base:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-client
+    command: ["tail", "-f", "/dev/null"]
     environment:
       SERVICE_PRECONDITION: "namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
@@ -128,8 +131,9 @@ services:
     tty: true
 
 volumes:
-  namenode_data:
-  datanode_data:
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_historyserver:
 
 networks:
   hadoop:
