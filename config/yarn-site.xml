@@ -10,7 +10,7 @@
   </property>
   <property>
     <name>yarn.log.server.url</name>
-    <value>http://historyserver:8188/applicationhistory/logs/</value>
+    <value>http://historyserver:19888/jobhistory/logs</value>
   </property>
   <property>
     <name>yarn.resourcemanager.recovery.enabled</name>
@@ -35,5 +35,29 @@
   <property>
     <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
     <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+  </property>
+  <property>
+    <name>yarn.timeline-service.enabled</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>4096</value>
+  </property>
+  <property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>4096</value>
+  </property>
+  <property>
+    <name>yarn.app.mapreduce.am.command-opts</name>
+    <value>-Xmx1024m -Dlog4j.configuration=log4j.properties</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.container-executor.class</name>
+    <value>org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.delete.debug-delay-sec</name>
+    <value>600</value>
   </property>
 </configuration>

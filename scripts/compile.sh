@@ -13,7 +13,7 @@ fi
 echo "Current Hadoop Classpath: $HADOOP_CP"
 
 echo "Compiling Top IP Analysis..."
-javac -cp "$HADOOP_CP" TopIP*.java
+javac -cp "$HADOOP_CP" -source 1.8 -target 1.8 TopIP*.java
 if [ $? -eq 0 ]; then
     jar cf /opt/hadoop/jars/topip.jar TopIP*.class
     echo "Top IP Analysis compiled successfully"
@@ -23,7 +23,7 @@ else
 fi
 
 echo "Compiling Error Analysis..."
-javac -cp "$HADOOP_CP" ErrorAnalysis*.java
+javac -cp "$HADOOP_CP" -source 1.8 -target 1.8 ErrorAnalysis*.java
 if [ $? -eq 0 ]; then
     jar cf /opt/hadoop/jars/erroranalysis.jar ErrorAnalysis*.class
     echo "Error Analysis compiled successfully"

@@ -6,6 +6,9 @@ echo "Starting jobs at $(date)"
 echo "Waiting for Hadoop services..."
 sleep 30
 
+# Set log4j configuration explicitly
+export HADOOP_ROOT_LOGGER=WARN,console
+
 echo "Compiling Java classes..."
 /opt/hadoop/scripts/compile.sh
 
