@@ -5,3 +5,14 @@ Using NASA web server logs of July 95 [Dataset link](https://ita.ee.lbl.gov/html
 ## Hadoop Cluster with Hadoop Yarn for resource management was custom configured using original apache/hadoop:3.4.1 docker image
 
 Feel free to use the configuration. Note that the bash/batch scripts in this repository are written for the map-reducing task mentioned above.
+
+
+### Linux
+```bash
+./initial.sh
+```
+
+### Windows
+```bash
+.\initial.bat
+```
