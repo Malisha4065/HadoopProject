@@ -8,8 +8,8 @@ docker compose build hadoop-client
 REM Change ownership of the namenode data directory
 docker compose run --rm --user root namenode chown -R 1000:1000 /opt/hadoop/dfs/name
 
-REM Change ownership of the datanode data directory
-docker compose run --rm --user root datanode chown -R 1000:1000 /opt/hadoop/dfs/data
+docker compose run --rm --user root datanode rm -rf /opt/hadoop/dfs/data
+docker compose run --rm namenode hdfs namenode -format
 
 REM Start the containers
 docker compose up -d

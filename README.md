@@ -13,6 +13,8 @@ Feel free to use the configuration. Note that the bash/batch scripts in this rep
 ```
 
 ### Windows
+
+## make sure to convert compile.sh and run-jobs.sh inside the scripts folder to LF format before running the script
 ```bash
 .\initial.bat
 ```
