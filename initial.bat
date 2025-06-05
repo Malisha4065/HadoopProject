@@ -11,6 +11,10 @@ docker compose run --rm --user root namenode chown -R 1000:1000 /opt/hadoop/dfs/
 docker compose run --rm --user root datanode rm -rf /opt/hadoop/dfs/data
 docker compose run --rm namenode hdfs namenode -format
 
+REM Update ownership and permissions for DataNode storage directory
+docker compose run --rm --user root datanode chown -R 1000:1000 /opt/hadoop/dfs/data
+docker compose run --rm --user root datanode chmod -R 755 /opt/hadoop/dfs/data
+
 REM Start the containers
 docker compose up -d
 
