@@ -1,0 +1,4 @@
+docker compose down
+docker volume rm hadoopconfig_hadoop_datanode hadoopconfig_hadoop_namenode hadoopproject_datanode_data hadoopproject_hadoop_datanode hadoopproject_hadoop_datanode2 hadoopproject_hadoop_namenode hadoopproject_namenode_data
+docker rmi hadoopproject-hadoop-client
+docker network rm hadoop_default hadoopconfig_hadoop

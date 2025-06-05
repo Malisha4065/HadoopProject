@@ -40,6 +40,22 @@ services:
     depends_on:
       - namenode
 
+  datanode2:
+    image: apache/hadoop:3.4.1
+    hostname: datanode2
+    command: ["hdfs", "datanode"]
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - hadoop_datanode2:/opt/hadoop/dfs/data
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./config:/opt/hadoop/etc/hadoop
+    networks:
+      - hadoop
+    depends_on:
+      - namenode
+
   resourcemanager:
     image: apache/hadoop:3.4.1
     hostname: resourcemanager
@@ -127,6 +143,7 @@ services:
 volumes:
   hadoop_namenode:
   hadoop_datanode:
+  hadoop_datanode2:
 
 networks:
   hadoop:
