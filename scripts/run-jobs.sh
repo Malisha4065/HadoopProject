@@ -39,12 +39,19 @@ ip_duration=$((end_time - start_time))
 if [ $? -eq 0 ]; then
     echo "Top IP Analysis completed successfully in ${ip_duration} seconds"
     
-    echo "Extracting top 20 IP addresses..."
-    hdfs dfs -cat /output/top_ips/part-* | sort -k2 -nr | head -20 > /opt/hadoop/results/top_ips.txt
-    echo "Results saved to /opt/hadoop/results/top_ips.txt"
+    echo "Extracting top 1000 IP addresses and domains..."
+    hdfs dfs -cat /output/top_ips/part-* | sort -k2 -nr | head -1000 > /opt/hadoop/results/top_ips_combined.txt
+
+    # Extract IPs
+    grep "^IP:" /opt/hadoop/results/top_ips_combined.txt | sed 's/^IP://' > /opt/hadoop/results/top_ips_only.txt
+
+    # Extract domains
+    grep "^DOMAIN:" /opt/hadoop/results/top_ips_combined.txt | sed 's/^DOMAIN://' > /opt/hadoop/results/top_domains_only.txt
+
+    echo "Results saved"
     
-    echo "Top 10 IP addresses:"
-    head -10 /opt/hadoop/results/top_ips.txt
+    echo "Top 10 IP addresses and domains:"
+    head -10 /opt/hadoop/results/top_ips_combined.txt
 else
     echo "Top IP Analysis failed"
 fi
