@@ -1,5 +1,4 @@
 access_log_Jul95
 *.class
 *.jar
-results/*
 data/*
