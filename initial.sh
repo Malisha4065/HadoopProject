@@ -1,7 +1,25 @@
 #!/bin/bash
 
+mkdir -p data
+mkdir -p jars
+mkdir -p results
+
+if [ ! -f data/access_log_Jul95 ]; then
+    echo "Extracted dataset not found. Checking for compressed file..."
+    if [ ! -f data/NASA_access_log_Jul95.gz ]; then
+        echo "Compressed file not found. Downloading dataset..."
+        curl -o data/NASA_access_log_Jul95.gz ftp://ita.ee.lbl.gov/traces/NASA_access_log_Jul95.gz
+    fi
+    echo "Extracting dataset..."
+    gunzip -c data/NASA_access_log_Jul95.gz > data/NASA_access_log_Jul95
+    # Extract only well-formed log entries (7-10 fields)
+    awk 'NF>=7 && NF<=10' data/NASA_access_log_Jul95 > data/access_log_Jul95
+else
+    echo "Dataset already extracted. Skipping download and extraction."
+fi
+
 # Stop and remove containers, networks, images, and volumes
-docker compose down
+docker compose down -v
 
 # Build the hadoop-client image
 docker compose build hadoop-client

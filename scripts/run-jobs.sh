@@ -4,7 +4,35 @@ echo "=== Hadoop MapReduce Java Jobs Runner ==="
 echo "Starting jobs at $(date)"
 
 echo "Waiting for Hadoop services..."
-sleep 30
+sleep 10
+
+# Wait for NodeManagers to be active
+echo "Waiting for NodeManagers to register with ResourceManager..."
+MAX_RETRIES=30 # Wait for up to 5 minutes (30 * 10 seconds)
+RETRY_COUNT=0
+while true; do
+    # Count active NodeManagers in RUNNING state. Output of 'yarn node -list' can vary.
+    # This awk script tries to be robust: skips 2 header lines, checks 2nd field for "RUNNING".
+    NUM_ACTIVE_NODES=$(yarn node -list 2>/dev/null | awk 'NR > 2 && $2 == "RUNNING" {count++} END {print count+0}')
+    
+    if [ "$NUM_ACTIVE_NODES" -ge 1 ]; then
+        echo "Found $NUM_ACTIVE_NODES active NodeManager(s)."
+        yarn node -list # Display node status
+        break
+    fi
+    
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+        echo "Timeout waiting for NodeManagers. Cluster may not have enough resources or NodeManagers failed to start/register."
+        echo "Current NodeManager status:"
+        yarn node -list 2>/dev/null || echo "Failed to get NodeManager list from ResourceManager."
+        echo "Please check YARN ResourceManager and NodeManager logs for errors."
+        exit 1
+    fi
+    
+    echo "No active NodeManagers found yet. Retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
+    sleep 10
+done
 
 # Set log4j configuration explicitly
 export HADOOP_ROOT_LOGGER=WARN,console

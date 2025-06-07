@@ -86,10 +86,21 @@ services:
       - ./data:/data
       - ./scripts:/scripts
       - ./config:/opt/hadoop/etc/hadoop
+    tmpfs:
+      - /tmp:size=2G
     networks:
       - hadoop
     depends_on:
-      - resourcemanager
+      resourcemanager:
+        condition: service_started
+      namenode:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8042/node/allApplications || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   historyserver:
     image: apache/hadoop:3.4.1
