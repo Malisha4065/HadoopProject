@@ -49,6 +49,14 @@
     <value>4096</value>
   </property>
   <property>
+    <name>yarn.nodemanager.local-dirs</name>
+    <value>/tmp/hadoop-yarn/nm-local-dir</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.log-dirs</name>
+    <value>/tmp/hadoop-yarn/nm-logs</value>
+  </property>
+  <property>
     <name>yarn.app.mapreduce.am.command-opts</name>
     <value>-Xmx1024m -Dlog4j.configuration=log4j.properties</value>
   </property>

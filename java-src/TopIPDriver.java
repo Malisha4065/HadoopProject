@@ -18,10 +18,10 @@ public class TopIPDriver {
         }
         
         Configuration conf = new Configuration();
-        
+
         conf.set("mapreduce.map.output.compress", "true");
-        conf.set("mapreduce.map.output.compress.codec", "org.apache.hadoop.io.compress.SnappyCodec");
-        
+        conf.set("mapreduce.map.output.compress.codec", "org.apache.hadoop.io.compress.GzipCodec");
+
         Job job = Job.getInstance(conf, "top ip analysis");
         job.setJarByClass(TopIPDriver.class);
         
