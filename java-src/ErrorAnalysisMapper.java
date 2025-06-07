@@ -23,11 +23,12 @@ public class ErrorAnalysisMapper extends Mapper<LongWritable, Text, Text, IntWri
         try {
             String[] fields = line.split("\\s+");
             
-            if (fields.length >= 9) {
-                String status = fields[8];  // Status code is typically at index 8
+            if (fields.length >= 2) {
+                // Get second field from the back (second-to-last field)
+                String status = fields[fields.length - 2];
                 
-                // Focus on error codes (4xx and 5xx)
-                if (status.startsWith("4") || status.startsWith("5")) {
+                // Validate that it's a proper 3-digit HTTP error status code (4xx or 5xx)
+                if (status.matches("^[45]\\d{2}$")) {
                     statusCode.set(status);
                     context.write(statusCode, one);
                 }
